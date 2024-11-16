@@ -120,7 +120,7 @@ const RegisterPage = () => {
                     <div className="flex justify-center">
                         <button
                             type="submit"
-                            className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full py-2 bg-orange-500 font-bold shadow-lg shadow-gray-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             disabled={loading}
                         >
                             {loading ? "Registering..." : "Register"}

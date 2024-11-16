@@ -12,16 +12,37 @@ export const registerUser = createAsyncThunk(
     "auth/registerUser",
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post("http://localhost:5000/api/v1/users/register", userData);
-            console.log('Response received:', response);
+            const response = await axios.post("http://localhost:5000/api/v1/users/register", userData, {
+                withCredentials: true,
+            });
             return response.data;
         } catch (error) {
             console.error('Request failed:', error);
             return rejectWithValue(error.response?.data?.message || "Something went wrong");
         }
     }
-  );
-  
+);
+
+export const loginUser = createAsyncThunk(
+    "auth/loginUser",
+    async (userData, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                "http://localhost:5000/api/v1/users/login",
+                userData, {
+                withCredentials: true,
+            }
+            );
+            console.log("response recieved::", response);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || error.message || "Something went wrong"
+            );
+        }
+    }
+);
+
 const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -46,6 +67,24 @@ const authSlice = createSlice({
                 state.status = "succeeded";
             })
             .addCase(registerUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+                state.success = false;
+            });
+        // login the user
+        builder
+            .addCase(loginUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.status = "loading";
+            })
+            .addCase(loginUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload;
+                state.success = true;
+                state.status = "succeeded";
+            })
+            .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
                 state.success = false;

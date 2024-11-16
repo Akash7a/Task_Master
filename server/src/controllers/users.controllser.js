@@ -3,6 +3,15 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/users.models.js";
 
+
+// Set secure cookies for tokens
+const options = {
+    httpOnly: true,
+    secure: false, //process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 const registerUser = AsyncHandler(async (req, res) => {
     const { username, email, password, role } = req.body; // extract the user details
 
@@ -36,17 +45,17 @@ const registerUser = AsyncHandler(async (req, res) => {
 
 });
 const loginUser = AsyncHandler(async (req, res) => {
-    const { email, username, password } = req.body;
+    const { usernameOrEmail, password } = req.body;
 
-    if (!email && !username) {
-        throw new ApiError(400, "Enter email or username.");
-    }
-    if (!password) {
-        throw new ApiError(400, "Password is required");
+    if (!usernameOrEmail || !password) {
+        throw new ApiError(400, "Username/Email and Password are required");
     }
 
     // Find user by email or username
-    const user = await User.findOne({ $or: [{ email }, { username }] });
+    const user = await User.findOne({
+        $or: [{ email: usernameOrEmail }, { username: usernameOrEmail }],
+    });
+
     if (!user) {
         throw new ApiError(400, "User does not exist");
     }
@@ -63,12 +72,6 @@ const loginUser = AsyncHandler(async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    // Set secure cookies for access and refresh tokens
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-    };
 
     // User data to send in the response
     const userData = {
@@ -78,16 +81,14 @@ const loginUser = AsyncHandler(async (req, res) => {
         role: user.role,
     };
 
-    // Set cookies for the tokens
+
     res.cookie("accessToken", accessToken, options);
     res.cookie("refreshToken", refreshToken, options);
 
-    // Respond with the user data and tokens
     return res.status(200).json(
         new ApiResponse(200, { userData, accessToken, refreshToken }, "User logged in successfully")
     );
 });
-
 const logoutUser = AsyncHandler(async (req, res) => {
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
@@ -96,7 +97,6 @@ const logoutUser = AsyncHandler(async (req, res) => {
         new ApiResponse(200, null, "User logged out successfully")
     )
 });
-
 export {
     registerUser,
     loginUser,
