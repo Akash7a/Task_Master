@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { registerUser, loginUser, logoutUser } from "../controllers/users.controller.js";
-import { createTask } from "../controllers/tasks.controller.js";
+import { createTask, getAllTasks } from "../controllers/tasks.controller.js";
 import protect from "../middleware/verifyJWT.middleware.js";
 
 const router = Router();
@@ -12,5 +12,6 @@ router.route("/logout").post(protect, logoutUser);
 
 // task routes
 router.route("/tasks").post(protect, createTask);
+router.route("/tasks").get(protect,getAllTasks);
 
 export default router;

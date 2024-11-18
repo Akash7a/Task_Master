@@ -5,6 +5,8 @@ import { createTask } from "../features/TaskSlice.js";
 
 const Home = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
 
   // Initialize form state
   const [taskData, setTaskData] = useState({
@@ -37,6 +39,7 @@ const Home = () => {
           priority: "medium", // Reset to default value
           dueDate: "",
         });
+        navigate("/allTasks");
       })
       .catch((err) => {
         console.error("Failed to create task:", err);
