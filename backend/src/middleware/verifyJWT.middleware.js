@@ -8,7 +8,7 @@ dotenv.config({
     path: "../.env"
 });
 
-const protect = AsyncHandler(async (req, res, next) => {
+const protect = AsyncHandler(async (req, _, next) => {
     try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
         if (!token) {
@@ -17,7 +17,8 @@ const protect = AsyncHandler(async (req, res, next) => {
 
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-        const userId = decodedToken.id;  
+        const userId = decodedToken.id;
+        
         const user = await User.findById(userId).select("-password -refreshToken");
 
         if (!user) {

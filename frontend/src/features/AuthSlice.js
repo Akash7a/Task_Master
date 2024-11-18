@@ -13,7 +13,7 @@ export const registerUser = createAsyncThunk(
     "auth/registerUser",
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post("http://localhost:5000/api/v1/users/register", userData, {
+            const response = await axios.post("/api/v1/users/register", userData, {
                 withCredentials: true,  // Send cookies with the request
             });
             return response.data;
@@ -29,7 +29,7 @@ export const loginUser = createAsyncThunk(
     "auth/loginUser",
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post("http://localhost:5000/api/v1/users/login", userData, {
+            const response = await axios.post("/api/v1/users/login", userData, {
                 withCredentials: true,  // Send cookies with the request
             });
             return response.data;
@@ -44,7 +44,7 @@ export const loginUser = createAsyncThunk(
 export const logoutUser = createAsyncThunk("auth/logoutUser", async (_, { rejectWithValue }) => {
     try {
         await axios.post("http://localhost:5000/api/v1/users/logout", {}, { withCredentials: true });
-        return;   
+        return;
     } catch (error) {
         return rejectWithValue("Logout failed");
     }

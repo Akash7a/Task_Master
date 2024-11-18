@@ -18,7 +18,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 const upload = multer();
-
 app.use(upload.none());
 
 import userRouter from "./routes/users.routes.js";
