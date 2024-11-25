@@ -21,6 +21,9 @@ const upload = multer();
 app.use(upload.none());
 
 import userRouter from "./routes/users.routes.js";
+import taskRouter from "./routes/tasks.routes.js";
+
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/tasks",taskRouter);
 
 export default app;
