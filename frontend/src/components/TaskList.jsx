@@ -43,6 +43,17 @@ const TaskList = () => {
             setEditTask(null);
         }
     }
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            weekday: 'short', 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+        });
+    }
+
     return (
         <div className="container mx-auto p-4">
             {/* No tasks available */}
@@ -74,7 +85,7 @@ const TaskList = () => {
                                 <h3 className="font-semibold text-xl text-white">{task.title}</h3>
                                 <p className="text-white text-sm mt-2">{task.description}</p>
                                 <div className="flex justify-between items-center mt-4">
-                                    <span className="text-white  text-sm">{task.createdAt}</span>
+                                    <span className="text-white text-sm">{formatDate(task.createdAt)}</span>
                                     <span className="px-3 py-1 text-white bg-blue-500 rounded-full text-xs">
                                         {task.status}
                                     </span>
