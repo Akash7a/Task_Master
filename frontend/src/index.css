@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.task{
+    background:linear-gradient(150deg,red,purple);
+}
+
+@media screen and (max-width:1024px){
+    .task_container{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding-top: 40px;
+        align-items: center;
+        gap: 20px;
+    }
+}

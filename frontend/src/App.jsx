@@ -1,25 +1,21 @@
-import React from 'react'
-import RegisterPage from './components/Register';
-import Login from './components/Login';
-import Home from './components/Home';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import Layout from "./components/Layout.jsx";
+import React from 'react';
+import { Home, Layout, Login, RegisterPage, TaskList } from "./components/Index.js";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 const App = () => {
   return (
-    <>
-      <Router>
-        <Routes>
-          <Route path='/' element={<Login />} />
-          <Route path='/register' element={<RegisterPage />} />
+    <Router>
+      <Routes>
+        <Route path='/' element={<Login />} />
+        <Route path='/register' element={<RegisterPage />} />
 
-          <Route element={<Layout />}>
-            <Route path='/home' element={<Home />} />
-          </Route>
-        </Routes>
-      </Router>
-    </>
-  )
+        <Route element={<Layout />}>
+          <Route path='/home' element={<Home />} />
+          <Route path='/taskList' element={<TaskList />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

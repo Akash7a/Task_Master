@@ -96,7 +96,7 @@ const yourTasks = AsyncHandler(async (req, res) => {
 const updateTask = AsyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { taskId } = req.params;
-    const { title, description, priority, dueDate } = req.body;
+    const { title, description, priority } = req.body;
 
     if (!userId) {
         throw new ApiError(401, "User is not authenticated.");
@@ -114,21 +114,12 @@ const updateTask = AsyncHandler(async (req, res) => {
 
     const validPriority = priority ? priority.charAt(0).toUpperCase() + priority.slice(1).toLowerCase() : task.priority;
 
-    let parsedDueDate;
-    if (dueDate) {
-        parsedDueDate = new Date(dueDate);
-        if (isNaN(parsedDueDate)) {
-            throw new ApiError(400, "Invalid dueDate format. Must be a valid date.");
-        }
-    }
-
     const updatedTask = await Task.findByIdAndUpdate(
         taskId,
         {
             title: title || task.title,
             description: description || task.description,
             priority: validPriority,
-            dueDate: parsedDueDate || task.dueDate,
         },
         {
             new: true,

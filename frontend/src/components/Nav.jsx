@@ -22,8 +22,8 @@ const Navbar = () => {
           <Link to="/home" className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
             Home
           </Link>
-          <Link to="/allTasks" className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
-            Tasks
+          <Link to="/taskList" className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
+            Your Tasks
           </Link>
           <Link to="/completed" className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
             Completed
@@ -45,8 +45,8 @@ const Navbar = () => {
         <Link to="/home" className="block text-white px-3 py-2 text-sm font-medium hover:bg-blue-700">
           Home
         </Link>
-        <Link to="/allTasks" className="block text-white px-3 py-2 text-sm font-medium hover:bg-blue-700">
-          Tasks
+        <Link to="/taskList" className="block text-white px-3 py-2 text-sm font-medium hover:bg-blue-700">
+          Your Tasks
         </Link>
         <Link to="/completed" className="block text-white px-3 py-2 text-sm font-medium hover:bg-blue-700">
           Completed
