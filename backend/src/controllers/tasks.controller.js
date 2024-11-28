@@ -138,6 +138,40 @@ const updateTask = AsyncHandler(async (req, res) => {
         );
 });
 
+const toggleTask = AsyncHandler(async (req, res) => {
+    const userId = req.user.id;
+
+    if (!userId) {
+        throw new ApiError(400, "You are not authenticated.");
+    }
+
+    const { taskId } = req.params;
+
+    if (!taskId) {
+        throw new ApiError(400, "Task not found.");
+    }
+
+    const task = await Task.findOne({ _id: taskId, owner: userId });
+
+    if (!task) {
+        throw new ApiError(404, "Task not found or you are not authorized to update it.");
+    }
+
+    task.status = task.status === "Pending" ? "Completed" : "Pending";
+
+    await task.save();
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            task,
+            "Task status toggled successfully."
+        )
+    );
+});
+
 const deleteTasks = AsyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { taskId } = req.params;
@@ -174,11 +208,11 @@ const deleteTasks = AsyncHandler(async (req, res) => {
             )
         );
 });
-
 export {
     createTask,
     getAllTasks,
     yourTasks,
     deleteTasks,
     updateTask,
+    toggleTask,
 }

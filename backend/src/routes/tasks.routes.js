@@ -6,6 +6,7 @@ import {
     yourTasks,
     deleteTasks,
     updateTask,
+    toggleTask
 } from "../controllers/tasks.controller.js";
 
 const taskRouter = Router();
@@ -16,5 +17,6 @@ taskRouter.route("/getAllTasks").get(protect, getAllTasks);
 taskRouter.route("/getYourTasks").get(protect, yourTasks);
 taskRouter.route("/deleteTask/:taskId").delete(protect, deleteTasks);
 taskRouter.route("/updateTask/:taskId").put(protect,updateTask);
+taskRouter.route("/toggleTask/:taskId").put(protect,toggleTask);
 
 export default taskRouter;

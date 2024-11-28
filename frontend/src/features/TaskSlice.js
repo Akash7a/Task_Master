@@ -50,6 +50,15 @@ export const updateTasks = createAsyncThunk("tasks/updateTasks", async ({ taskId
             taskData,
             { withCredentials: true }
         );
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.response?.data?.message || error.message);
+    }
+});
+
+export const toggleTask = createAsyncThunk("tasks/toggleTasks", async ({ taskId }, { rejectWithValue }) => {
+    try {
+        const response = await axios.put(`http://localhost:5000/api/v1/tasks/toggleTask/${taskId}`, {}, { withCredentials: true });
         console.log(response.data);
         return response.data;
     } catch (error) {
@@ -83,7 +92,7 @@ const TaskSlice = createSlice({
                 state.error = null;
                 state.loading = false;
                 state.success = true;
-                state.message = action.payload?.message;
+                state.message = action.payload?.message || "Task created successfully"; // Ensure message is string
                 state.tasks.push(action.payload);
             })
             .addCase(createTasks.rejected, (state, action) => {
@@ -102,8 +111,8 @@ const TaskSlice = createSlice({
                 state.loading = false;
                 state.error = null;
                 state.success = true;
-                state.message = action.payload?.message;
-                state.tasks = action.payload?.data || [];
+                state.message = action.payload?.message || "Tasks loaded successfully";
+                state.tasks = action.payload?.data || []; // Ensure tasks is an array
             })
             .addCase(getAllTasks.rejected, (state, action) => {
                 state.error = action.payload;
@@ -111,8 +120,8 @@ const TaskSlice = createSlice({
                 state.message = action.payload?.message || "Failed to fetch tasks";
                 state.loading = false;
             });
-        builder
 
+        builder
             .addCase(deleteTasks.pending, (state) => {
                 state.loading = true;
                 state.message = null;
@@ -121,14 +130,15 @@ const TaskSlice = createSlice({
                 state.loading = false;
                 state.error = null;
                 state.success = true;
-                state.message = action.payload.message || "task deleted successfully.";
-                state.tasks = state.tasks.filter((task) => task._id !== action.payload.taskId);
+                state.message = action.payload?.message || "Task deleted successfully";
+                state.tasks = state.tasks.filter((task) => task._id !== action.payload?.taskId);
             })
             .addCase(deleteTasks.rejected, (state, action) => {
                 state.loading = false;
                 state.success = false;
                 state.error = action.payload;
             });
+
         builder
             .addCase(updateTasks.pending, (state) => {
                 state.loading = true;
@@ -138,9 +148,9 @@ const TaskSlice = createSlice({
                 state.error = null;
                 state.loading = false;
                 state.success = true;
-                state.message = action.payload.message || "Task updated successfully.";
-                const updatedTask = action.payload.data;
-                const index = state.tasks.findIndex((task) => task._id === updatedTask._id);
+                state.message = action.payload?.message || "Task updated successfully";
+                const updatedTask = action.payload?.data;
+                const index = state.tasks.findIndex((task) => task._id === updatedTask?._id);
                 if (index !== -1) {
                     state.tasks[index] = updatedTask;
                 }
@@ -150,9 +160,32 @@ const TaskSlice = createSlice({
                 state.error = action.payload;
                 state.message = action.payload;
             });
+
+        builder
+            .addCase(toggleTask.pending, (state) => {
+                state.loading = true;
+                state.message = null;
+            })
+            .addCase(toggleTask.fulfilled, (state, action) => {
+                state.loading = false;
+                state.error = null;
+                state.message = action.payload?.message || "Task status toggled successfully";
+                state.success = true;
+
+                const toggledTask = action.payload?.data;
+                const index = state.tasks.findIndex((task) => task._id === toggledTask?._id);
+                if (index !== -1) {
+                    state.tasks[index] = toggledTask;
+                }
+            })
+            .addCase(toggleTask.rejected, (state, action) => {
+                state.loading = false;
+                state.success = false;
+                state.error = action.payload;
+                state.message = action.payload || "Failed to toggle task status.";
+            });
     }
 });
 
 export const { clearSuccess, clearError, resetMessage } = TaskSlice.actions;
-
 export default TaskSlice.reducer;

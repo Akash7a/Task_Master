@@ -1,142 +1,175 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteTasks, getAllTasks, updateTasks } from "../features/TaskSlice.js";
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from "react-redux";
+import { deleteTasks, getAllTasks, toggleTask, updateTasks } from '../features/TaskSlice';
 
 const TaskList = () => {
     const dispatch = useDispatch();
-    const { tasks: tasks, loading, error, success, message } = useSelector(state => state.tasks);
-    const [editTask, setEditTask] = useState(null);
+    const { tasks, error, loading } = useSelector(state => state.tasks);
+    const [editingTask, setEditingTask] = useState(null);
 
-    // Fetch tasks on component mount
     useEffect(() => {
         dispatch(getAllTasks());
     }, [dispatch]);
 
-    // Loading state
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen text-gray-500">
-                <p>Loading tasks...</p>
-            </div>
-        );
-    }
+    const formatDate = (createdAt) => {
+        const date = new Date(createdAt);
+        return date.toLocaleDateString("en-US", {
+            year: 'numeric',
+            month: "long",
+            day: "numeric",
+        });
+    };
 
-    // Error state
-    if (error) {
-        return (
-            <div className="flex justify-center items-center h-screen text-red-500">
-                <p>{message || "Failed to load tasks"}</p>
-            </div>
-        );
-    }
+    const updateHandler = (taskId, taskData) => {
+        dispatch(updateTasks({ taskId, taskData }));
+        setEditingTask(null);
+    };
 
-    const handleUpdate = () => {
-        if (editTask) {
-            dispatch(updateTasks({
-                taskId: editTask._id,
-                taskData: {
-                    title: editTask.title,
-                    description: editTask.description,
-                    priority: editTask.priority
-                }
-            }));
-            setEditTask(null);
+    const handleToggle = (taskId) => {
+        if (taskId) {
+            dispatch(toggleTask({ taskId }));
+        } else {
+            console.error("Task ID is missing.");
         }
     }
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            weekday: 'short', 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric',
-        });
+    if (error) {
+        return <div className="text-center text-red-500 text-lg">Error: {error}</div>;
     }
 
     return (
-        <div className="container mx-auto p-4">
-            {/* No tasks available */}
-            {tasks.length === 0 ? (
-                <p className="text-center text-lg">No tasks available</p>
-            ) : (
-                <div className="task_container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {/* Render tasks */}
-                    {tasks.map((task) => (
-                        <div
-                            key={task._id}
-                            className="task bg-white relative shadow-lg rounded-lg overflow-hidden hover:shadow-xl transform transition duration-300 ease-in-out mt-3"
-                        >
-                            <div className="absolute p-1 px-5 w-full flex items-center justify-between shadow-sm shadow-gray-500">
-                                <button className="text-3xl" onClick={() => dispatch(deleteTasks(task._id))}>
-                                    ❌
-                                </button>
-                                <button className="text-3xl">
-                                    ✅
-                                </button>
-                                <button className="text-3xl" onClick={() => setEditTask(task)}>📝</button>
-                            </div>
-                            <img
-                                src={task.imageUrl || "https://via.placeholder.com/300"}
-                                alt={task.name}
-                                className="w-full h-48 object-cover"
-                            />
-                            <div className="p-4">
-                                <h3 className="font-semibold text-xl text-white">{task.title}</h3>
-                                <p className="text-white text-sm mt-2">{task.description}</p>
-                                <div className="flex justify-between items-center mt-4">
-                                    <span className="text-white text-sm">{formatDate(task.createdAt)}</span>
-                                    <span className="px-3 py-1 text-white bg-blue-500 rounded-full text-xs">
-                                        {task.status}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-            {editTask && (
-                <div className="fixed inset-0 flex items-center justify-center bg-white  bg-opacity-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h3 className="text-xl font-bold mb-4">Edit Task</h3>
-                        <input
-                            type="text"
-                            className="border p-2 w-full mb-2"
-                            placeholder="Title"
-                            value={editTask.title}
-                            onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
+        <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                {tasks?.length > 0 ? tasks.map((task) => (
+                    <div
+                        key={task._id}
+                        className="bg-white shadow-lg rounded-lg p-5 hover:shadow-xl transition duration-300 transform hover:scale-105 w-full"
+                        style={{ maxWidth: '400px', margin: 'auto' }}
+                    >
+                        <img
+                            src="https://via.placeholder.com/400x200"
+                            alt="Task Placeholder"
+                            className="w-full h-auto rounded-md mb-4"
                         />
-                        <textarea
-                            className="border p-2 w-full mb-2"
-                            placeholder="Description"
-                            value={editTask.description}
-                            onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
-                        />
-                        <select
-                            className="border p-2 w-full mb-2"
-                            value={editTask.priority}
-                            onChange={(e) => setEditTask({ ...editTask, priority: e.target.value })}
-                        >
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">High</option>
-                        </select>
-                        <div className="flex justify-end space-x-2">
-                            <button
-                                className="px-4 py-2 bg-blue-500 text-white rounded"
-                                onClick={() => handleUpdate(editTask._id)}
+                        <h2 className="text-xl font-bold text-gray-800 mb-2">{task.title}</h2>
+                        <p className="text-gray-600 mb-4">{task.description}</p>
+                        <div className="flex items-center justify-between mb-4">
+                            <p
+                                className={`px-3 py-1 rounded-full text-sm font-semibold ${task.status === "Completed"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-yellow-300 text-yellow-800"
+                                    }`}
                             >
-                                Save
+                                {task.status}
+                            </p>
+                            <p className="text-sm text-gray-500">{formatDate(task.createdAt)}</p>
+                        </div>
+                        <div className='text-3xl py-4 flex gap-15 justify-center'>
+                            <button
+                                onClick={() => handleToggle(task._id)}
+                                className="hover:bg-gray-200 p-2 rounded"
+                            >
+                                {task.status === "Completed" ? "↩️" : "✅"}
                             </button>
                             <button
-                                className="px-4 py-2 bg-red-500 text-white rounded"
-                                onClick={() => setEditTask(null)}
+                                onClick={() => dispatch(deleteTasks(task._id))}
+                                className="hover:bg-gray-200 p-2 rounded"
                             >
-                                Cancel
+                                ❌
+                            </button>
+                            <button
+                                onClick={() => setEditingTask(task)}
+                                className="hover:bg-gray-200 p-2 rounded"
+                            >
+                                📝
                             </button>
                         </div>
                     </div>
-                </div>
+                )) : (
+                    <p className="text-center font-bold text-white text-3xl">No Tasks Available!</p>
+                )}
+            </div>
+            {editingTask && (
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        updateHandler(editingTask._id, editingTask);
+                    }}
+                    className="fixed inset-0 flex items-center justify-center space-y-4 p-6 bg-gray-100 rounded-lg shadow-lg"
+                    style={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    }}
+                >
+                    <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
+                        <div>
+                            <label
+                                htmlFor="title"
+                                className="block text-lg font-semibold text-gray-700 mb-2"
+                            >
+                                Task Title
+                            </label>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                value={editingTask.title}
+                                onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+                                placeholder="Enter task title"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="description"
+                                className="block text-lg font-semibold text-gray-700 mb-2"
+                            >
+                                Description
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                value={editingTask.description}
+                                onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
+                                placeholder="Add task description"
+                                rows="4"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:outline-none"
+                            ></textarea>
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="priority"
+                                className="block text-lg font-semibold text-gray-700 mb-2"
+                            >
+                                Choose Priority
+                            </label>
+                            <select
+                                value={editingTask.priority || ''}
+                                onChange={(e) => setEditingTask({ ...editingTask, priority: e.target.value })}
+                                name="priority"
+                                id="priority"
+                                className="w-full bg-green-200 font-bold px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            >
+                                <option value="">Choose priority</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-4"
+                        >
+                            {loading ? "Saving..." : "Save"}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setEditingTask(null)}
+                            className="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 mt-2"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </form>
             )}
         </div>
     );
