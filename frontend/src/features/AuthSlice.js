@@ -1,11 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import apiClient from "../utils/apiClient.js";
 
 const initialState = {
     user: null,
     loading: false,
     error: null,
     success: false,
+    accessToken: null,
+    refreshToken: null,
+    isAuthenticated: false,
 };
 
 // Register user
@@ -29,9 +33,7 @@ export const loginUser = createAsyncThunk(
     "auth/loginUser",
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post("/api/v1/users/login", userData, {
-                withCredentials: true,  // Send cookies with the request
-            });
+            const response = await apiClient.post("/users/login", userData);
             return response.data;
         } catch (error) {
             return rejectWithValue(
@@ -59,11 +61,30 @@ const authSlice = createSlice({
         },
         clearSuccess(state) {
             state.success = false;
-        }
+        },
+        loginSucces: (state, action) => {
+            state.user = action.payload.user;
+            state.accessToken = action.payload.accessToken;
+            state.refreshToken = action.payload.refreshToken;
+            state.isAuthenticated = true;
+            state.success = true;
+            state.error = null;
+        },
+        logoutSuccess: (state) => {
+            state.user = null;
+            state.accessToken = null;
+            state.refreshToken = null;
+            state.isAuthenticated = false;
+            satisfies.loading = false;
+            state.error = null;
+            state.success = false;
+        },
+        tokenRefreshed: (state, action) => {
+            state.accessToken = action.payload.accessToken;
+        },
     },
     extraReducers: (builder) => {
         builder
-            // Register user
             .addCase(registerUser.pending, (state) => {
                 state.loading = true;
                 state.status = "loading";
@@ -113,6 +134,6 @@ const authSlice = createSlice({
     }
 });
 
-export const { clearError, clearSuccess } = authSlice.actions;
+export const { clearError, clearSuccess, tokenRefreshed } = authSlice.actions;
 
 export default authSlice.reducer;

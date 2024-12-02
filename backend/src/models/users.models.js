@@ -1,4 +1,4 @@
-import mongoose, { Mongoose, Schema } from "mongoose";
+ import mongoose, { Mongoose, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
